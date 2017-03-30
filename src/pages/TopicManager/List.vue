@@ -1,0 +1,195 @@
+<template>
+	<section>
+		<!--工具条-->
+		<el-col :span="24" class="toolbar" style="padding-bottom: 10px;">
+      <el-select  v-model="currentType" placeholder="请选择话题标签" style="float:left">
+        <el-option
+          v-for="type in types"
+          :value="type">
+        </el-option>
+      </el-select>
+			<el-form :inline="true" :model="filters" style="float:right">
+				<el-form-item>
+					<el-input v-model="filters.title" placeholder="关键字"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" v-on:click="articleTable">查询话题</el-button>
+				</el-form-item>
+			</el-form>
+		</el-col>
+		<!--列表-->
+		<el-table :data="articleTable" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;margin-bottom:30px;">
+			<el-table-column prop="date" label="发布时间" width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="title" label="话题" width="150" sortable>
+			</el-table-column>
+			<el-table-column prop="type" label="标签" width="100" sortable>
+			</el-table-column>
+			<el-table-column prop="author" label="发起者" width="100" sortable>
+			</el-table-column>
+			<el-table-column prop="watched" label="评论数" min-width="100" sortable>
+			</el-table-column>
+			<el-table-column prop="status" label="是否完结" min-width="120" sortable>
+			</el-table-column>
+      <el-table-column inline-template label="操作" align="center" property="id">
+          <el-button type="text" size="mini" @click.native="">进入话题</el-button>
+        </el-table-column>
+		</el-table>
+	</section>
+</template>
+
+<script>
+	//import util from './js/util'
+	import NProgress from 'nprogress'
+//	import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser } from './js/api';
+
+	export default {
+		data() {
+			return {
+				filters: {
+					title: ''
+				},
+				total: 3,
+				page: 1,
+				listLoading: false,
+				currentType: '话题类型',
+				types:['话题类型','家庭纠纷','工作压力','情感问题','社会交际','学习困扰'],
+				sels: [],//列表选中列
+        activeNum: 0,
+				articleTableData: [
+          {
+              aid:'0001',
+              title:'hello world',
+              type:['家庭纠纷'],
+              author:'firewood',
+              pic:'https://..............',
+              date:'2017-3-8',
+              watched:200,
+              click:10,
+              status:0
+          },
+          {
+              aid:'0010',
+              title:'hello world',
+              type:['家庭纠纷'],
+              author:'firewood',
+              pic:'https://..............',
+              date:'2017-3-8',
+              watched:200,
+              click:10,
+              status:0
+          },
+          {
+              aid:'0011',
+              title:'hello world',
+              type:['家庭纠纷'],
+              author:'firewood',
+              pic:'https://..............',
+              date:'2017-3-8',
+              watched:200,
+              click:10,
+              status:0
+          },
+          {
+              aid:'0100',
+              title:'hello world',
+              type:['家庭纠纷'],
+              author:'firewood',
+              pic:'https://..............',
+              date:'2017-3-8',
+              watched:200,
+              click:10,
+              status:0
+          },
+          {
+              aid:'0101',
+              title:'hello world',
+              type:['家庭纠纷'],
+              author:'firewood',
+              pic:'https://..............',
+              date:'2017-3-8',
+              watched:200,
+              click:10,
+              status:0
+          }
+				]
+			}
+		},
+		computed:{
+		  articleTable: function(){
+		    var type = this.currentType;
+		    return this.articleTableData.filter(function(data){
+          if(type=='话题类型'||type==''){
+          return true
+          }else{
+          return data.type == type
+          }
+		    })
+		  }
+		},
+		methods:{
+		  selsChange: function(val){
+        var arr =[] ;
+        val.forEach(function(item){
+          arr.push(item.id);
+        });
+        this.sels = arr;
+        this.activeNum = this.sels.length;
+		  },
+		  handleEdit: function(index,row){
+
+		  },
+		  handleDel:function(index,row){
+        this.$confirm('确认删除该记录吗?', '提示', {
+              type: 'warning'
+            }).then(() => {
+              this.listLoading = true;
+              NProgress.start();
+              let para = { id: row.id };
+              removeUser(para).then((res) => {
+                this.listLoading = false;
+                NProgress.done();
+                this.$notify({
+                  title: '成功',
+                  message: '删除成功',
+                  type: 'success'
+                });
+                this.articleTable();
+              });
+            }).catch(() => {
+              this.$alert('boom!Boom!BOOM!','出错',{
+                  type:''
+              })
+            });
+		  },
+      //批量删除
+      batchRemove: function () {
+        var ids = this.sels.map(item => item.id).toString();
+        this.$confirm('确认删除选中记录吗？', '提示', {
+          type: 'warning'
+        }).then(() => {
+          this.listLoading = true;
+          NProgress.start();
+            this.listLoading = false;
+            NProgress.done();
+        }).catch(() => {
+
+        });
+      },
+      handleCurrentChange:function(val){
+        this.page = val;
+        this.articleTable();
+      },
+      //显示新增界面
+      handleAdd: function () {
+
+      }
+
+		}
+	}
+
+</script>
+
+<style scoped>
+
+</style>
